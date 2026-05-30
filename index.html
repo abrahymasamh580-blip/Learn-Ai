@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>Learn AI</title>
+<link rel="manifest" href="manifest.json">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Inter',sans-serif}
+:root{
+  --bg:#000;--surface:#0a0a0a;--surface2:#141414;--surface3:#1a1a1a;
+  --border:#222;--border2:#2a2a2a;--text:#ececec;--text2:#8e8ea0;--text3:#555;
+  --accent:#10a37f;--accent2:#0d8c6d;--red:#ef4444;--yellow:#f59e0b;--purple:#8b5cf6;--blue:#3b82f6;
+  --radius:12px;--sidebar:260px
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+
+/* ── SETUP ── */
+.setup{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:24px}
+.setup-logo{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.logo-mark{width:48px;height:48px;background:#000;border:1.5px solid #333;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:26px;height:26px}
+.logo-name{font-size:26px;font-weight:700;letter-spacing:-0.5px;color:var(--text)}
+.setup h2{font-size:15px;color:var(--text2);text-align:center;font-weight:400;max-width:300px;line-height:1.6}
+.setup-form{width:100%;max-width:380px;display:flex;flex-direction:column;gap:12px}
+.setup-input{padding:14px 16px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:14px;outline:none;transition:border-color .2s;width:100%}
+.setup-input:focus{border-color:#444}
+.setup-btn{padding:14px;background:var(--text);border:none;border-radius:var(--radius);color:#000;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.setup-btn:hover{opacity:.9}
+.setup-note{font-size:12px;color:var(--text3);text-align:center}
+.setup-link{font-size:13px;color:var(--accent);text-decoration:none}
+
+/* ── APP SHELL ── */
+#app{display:none;width:100%;height:100vh;flex-direction:row-reverse}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100vh;flex-shrink:0}
+.sidebar-head{padding:16px 12px 12px;display:flex;flex-direction:column;gap:8px}
+.new-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;cursor:pointer;transition:all .15s;width:100%}
+.new-btn:hover{background:var(--surface2);color:var(--text)}
+.new-btn svg{width:14px;height:14px;flex-shrink:0}
+.sidebar-label{padding:8px 12px 4px;font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.history{flex:1;overflow-y:auto;padding:0 8px}
+.h-item{padding:9px 12px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .15s;margin-bottom:1px;display:flex;align-items:center;gap:8px}
+.h-item:hover,.h-item.on{background:var(--surface2);color:var(--text)}
+.h-item svg{width:13px;height:13px;flex-shrink:0;opacity:.5}
+.sidebar-foot{padding:12px;border-top:1px solid var(--border)}
+.model-pick{width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:12px;outline:none;cursor:pointer}
+.model-pick option{background:#111}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 16px;flex-shrink:0;background:var(--bg)}
+.menu-btn{background:none;border:none;color:var(--text2);cursor:pointer;padding:6px;border-radius:8px;display:flex}
+.menu-btn:hover{background:var(--surface2)}
+.menu-btn svg{width:16px;height:16px}
+.topbar-logo{display:flex;align-items:center;gap:8px;flex:1}
+.tl-mark{width:28px;height:28px;background:#000;border:1px solid #333;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.tl-mark svg{width:15px;height:15px}
+.tl-name{font-size:14px;font-weight:600;color:var(--text)}
+.top-tabs{display:flex;gap:2px;background:var(--surface);padding:3px;border-radius:9px}
+.top-tab{padding:5px 14px;border-radius:7px;border:none;background:none;color:var(--text2);font-size:12px;cursor:pointer;font-weight:500;transition:all .15s;white-space:nowrap}
+.top-tab.on{background:var(--surface2);color:var(--text)}
+
+/* ── CHAT ── */
+#chatMode{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chat-scroll{flex:1;overflow-y:auto;scroll-behavior:smooth}
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 24px;gap:24px}
+.w-logo{width:64px;height:64px;background:#000;border:1.5px solid #2a2a2a;border-radius:16px;display:flex;align-items:center;justify-content:center}
+.w-logo svg{width:34px;height:34px}
+.welcome h2{font-size:24px;font-weight:700;text-align:center;letter-spacing:-.3px}
+.welcome p{color:var(--text2);font-size:14px;text-align:center;line-height:1.6;max-width:360px}
+.sug-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:520px}
+.sug{padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;text-align:right;line-height:1.5}
+.sug:hover{background:var(--surface2);color:var(--text);border-color:#333}
+.sug strong{display:block;font-size:12px;color:var(--text3);margin-bottom:4px;font-weight:500}
+
+.msgs{padding:20px 0;display:flex;flex-direction:column}
+.msg-row{display:flex;gap:14px;padding:6px 24px;max-width:900px;margin:0 auto;width:100%}
+.msg-row.user{flex-direction:row-reverse}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:3px}
+.av.ai{background:#000;border:1px solid #333}
+.av.ai svg{width:16px;height:16px}
+.av.user{background:#1a1a1a;border:1px solid #2a2a2a;font-size:14px}
+.bub{font-size:14px;line-height:1.75;color:var(--text);max-width:78%}
+.msg-row.user .bub{background:var(--surface2);border:1px solid var(--border);padding:12px 16px;border-radius:18px 4px 18px 18px;max-width:72%}
+.bub pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;font-size:13px;margin:10px 0;font-family:'Courier New',monospace}
+.bub code{background:var(--surface2);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:13px;font-family:'Courier New',monospace}
+.bub h3,.bub h4{color:#fff;margin:12px 0 6px;font-weight:600}
+.bub strong{color:#fff;font-weight:600}
+.bub ul,.bub ol{padding-right:20px;margin:8px 0}
+.bub li{margin:4px 0;color:var(--text2)}
+.bub table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.bub th{background:var(--surface2);padding:8px 12px;text-align:right;color:var(--text);border:1px solid var(--border)}
+.bub td{padding:8px 12px;border:1px solid var(--border);color:var(--text2)}
+.dots{display:flex;gap:5px;padding:8px 0;align-items:center}
+.dots span{width:7px;height:7px;border-radius:50%;background:var(--text3);animation:db 1.2s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
+
+/* ── INPUT ── */
+.input-wrap{padding:12px 24px 20px;flex-shrink:0}
+.input-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;transition:border-color .2s;position:relative}
+.input-box:focus-within{border-color:#3a3a3a}
+textarea.ti{width:100%;background:none;border:none;color:var(--text);font-size:15px;resize:none;outline:none;padding:14px 16px 8px;max-height:180px;min-height:26px;line-height:1.6;font-family:'Inter',sans-serif}
+.input-foot{display:flex;align-items:center;justify-content:space-between;padding:6px 12px 10px}
+.char{font-size:11px;color:var(--text3)}
+.send{width:34px;height:34px;background:var(--text);border:none;border-radius:9px;color:#000;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.send:hover{opacity:.85}
+.send:disabled{background:var(--surface3);cursor:not-allowed}
+.send svg{width:15px;height:15px}
+.hint{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
+
+/* ── STUDY ── */
+#studyMode{flex:1;display:none;flex-direction:column;overflow:hidden}
+.study-scroll{flex:1;overflow-y:auto;padding:20px 24px}
+.upload-card{border:1.5px dashed var(--border2);border-radius:16px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.upload-card:hover{border-color:#444;background:var(--surface)}
+.upload-card h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.upload-card p{font-size:13px;color:var(--text2)}
+.field{width:100%;padding:12px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-size:14px;outline:none;transition:border-color .2s;font-family:'Inter',sans-serif}
+.field:focus{border-color:#444}
+textarea.field{resize:none;min-height:110px;line-height:1.6}
+.go-btn{width:100%;padding:13px;background:var(--text);border:none;border-radius:var(--radius);color:#000;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:12px}
+.go-btn:hover{opacity:.88}
+
+.s-tabs{display:flex;gap:4px;margin-bottom:20px;overflow-x:auto;padding-bottom:2px;flex-shrink:0}
+.s-tab{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s;font-weight:500}
+.s-tab.on{background:var(--text);border-color:var(--text);color:#000}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.card-title{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em}
+.card p,.card li{font-size:14px;color:var(--text2);line-height:1.7}
+.card ul{padding-right:16px}
+.card li{margin:3px 0}
+.tag{display:inline-block;padding:3px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;font-size:12px;color:var(--text2);margin:3px}
+
+/* QUIZ */
+.q-progress{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px}
+.q-progress span{font-size:12px;color:var(--text2)}
+.q-progress strong{color:var(--text)}
+.q-bar{height:3px;background:var(--border);border-radius:3px;margin-bottom:14px;overflow:hidden}
+.q-bar-fill{height:100%;background:var(--text);border-radius:3px;transition:width .4s}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:10px}
+.q-level{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.lv-easy{background:rgba(16,163,127,.12);color:var(--accent)}
+.lv-med{background:rgba(245,158,11,.12);color:var(--yellow)}
+.lv-hard{background:rgba(239,68,68,.12);color:var(--red)}
+.lv-vhard{background:rgba(220,38,38,.15);color:#dc2626}
+.lv-ana{background:rgba(139,92,246,.12);color:var(--purple)}
+.lv-app{background:rgba(59,130,246,.12);color:var(--blue)}
+.q-text{font-size:14px;font-weight:500;line-height:1.6;color:var(--text);margin-bottom:14px}
+.opt{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text2);font-size:13px;cursor:pointer;text-align:right;margin-bottom:6px;transition:all .15s;display:flex;align-items:center;gap:10px}
+.opt:hover:not(:disabled){border-color:#444;color:var(--text)}
+.opt-letter{width:22px;height:22px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.opt.correct{background:rgba(16,163,127,.1);border-color:var(--accent);color:var(--accent)}
+.opt.correct .opt-letter{background:var(--accent);color:#000}
+.opt.wrong{background:rgba(239,68,68,.08);border-color:var(--red);color:var(--red)}
+.opt.wrong .opt-letter{background:var(--red);color:#fff}
+.exp{font-size:13px;color:var(--text2);padding:10px 12px;background:var(--surface2);border-radius:8px;margin-top:8px;line-height:1.6;display:none;border-right:2px solid var(--accent)}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;margin-bottom:16px}
+.score-big{font-size:64px;font-weight:800;letter-spacing:-2px;color:var(--text)}
+.score-sub{font-size:14px;color:var(--text2);margin-top:6px}
+.score-msg{font-size:16px;font-weight:600;margin-top:12px;color:var(--text)}
+.retry-btn{width:100%;padding:13px;background:var(--text);border:none;border-radius:var(--radius);color:#000;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px}
+
+/* FLASHCARDS */
+.fc-wrap{perspective:1000px;cursor:pointer;margin-bottom:14px}
+.fc-inner{position:relative;width:100%;transition:transform .55s;transform-style:preserve-3d;min-height:200px}
+.fc-wrap.flip .fc-inner{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;background:var(--surface);border:1px solid var(--border)}
+.fc-back-face{transform:rotateY(180deg);border-color:var(--accent);background:var(--surface)}
+.fc-tag{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.fc-q{font-size:17px;font-weight:600;color:var(--text);line-height:1.5}
+.fc-a{font-size:15px;color:var(--accent);line-height:1.6}
+.fc-hint{font-size:11px;color:var(--text3);margin-top:12px}
+.fc-counter{text-align:center;font-size:12px;color:var(--text3);margin-bottom:12px}
+.fc-nav{display:flex;gap:8px}
+.fc-btn{flex:1;padding:11px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text2);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
+.fc-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* WORKSHEET */
+.ws-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+.ws-head{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.ws-head h4{font-size:13px;font-weight:600;color:var(--text)}
+.ws-body{padding:16px;display:flex;flex-direction:column;gap:14px}
+.ws-q-item{border-bottom:1px solid var(--border);padding-bottom:14px}
+.ws-q-item:last-child{border-bottom:none;padding-bottom:0}
+.ws-q-item p{font-size:13px;font-weight:500;color:var(--text);margin-bottom:8px;line-height:1.6}
+.ws-ta{width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;resize:none;outline:none;min-height:72px;line-height:1.6;font-family:'Inter',sans-serif}
+.ws-ta:focus{border-color:#444}
+.check-btn{padding:7px 16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;margin-top:6px;transition:all .15s;font-weight:500}
+.check-btn:hover{background:var(--surface3);color:var(--text);border-color:#444}
+.ws-fb{font-size:13px;padding:10px 12px;border-radius:8px;margin-top:8px;display:none;line-height:1.6}
+.ws-fb.ok{background:rgba(16,163,127,.08);color:var(--accent);border-right:2px solid var(--accent)}
+.ws-fb.no{background:rgba(239,68,68,.08);color:var(--red);border-right:2px solid var(--red)}
+
+/* YOUTUBE */
+.yt-item{display:flex;gap:12px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);transition:all .15s;margin-bottom:8px}
+.yt-item:hover{border-color:#333;background:var(--surface2)}
+.yt-icon{width:80px;height:52px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.yt-icon svg{width:22px;height:22px;color:#ff0000}
+.yt-text h5{font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text);line-height:1.4}
+.yt-text p{font-size:12px;color:var(--text2)}
+.yt-search-row{display:flex;gap:8px;margin-top:4px}
+.yt-input{flex:1;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;outline:none}
+.yt-input:focus{border-color:#444}
+.yt-go{padding:10px 16px;background:#ff0000;border:none;border-radius:9px;color:#fff;cursor:pointer;font-size:13px;font-weight:500}
+
+/* PLAN */
+.day-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px}
+.day-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.day-head h4{font-size:13px;font-weight:600;color:var(--text)}
+.day-head span{font-size:11px;color:var(--text3);background:var(--surface2);padding:3px 9px;border-radius:20px}
+.day-tasks{padding:12px 16px;display:flex;flex-direction:column;gap:7px}
+.task-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text2);line-height:1.5}
+.task-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);flex-shrink:0;margin-top:7px}
+
+/* LOADING */
+.load-box{display:flex;flex-direction:column;align-items:center;padding:60px 24px;gap:16px}
+.spin{width:32px;height:32px;border:2px solid var(--border);border-top:2px solid var(--text);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load-txt{font-size:14px;color:var(--text2)}
+.load-sub{font-size:12px;color:var(--text3)}
+
+/* BACK BTN */
+.back-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.back-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s}
+.back-btn:hover{color:var(--text);background:var(--surface2)}
+.page-title{font-size:14px;font-weight:600;color:var(--accent)}
+
+/* MOBILE */
+@media(max-width:680px){
+  .sidebar{position:fixed;right:0;top:0;bottom:0;z-index:200;transform:translateX(100%);transition:transform .25s;box-shadow:-20px 0 60px rgba(0,0,0,.8)}
+  .sidebar.open{transform:translateX(0)}
+  .sug-grid{grid-template-columns:1fr}
+  .input-wrap{padding:10px 14px 18px}
+  .msgs .msg-row{padding:6px 14px}
+  .study-scroll{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div class="setup" id="setup">
+  <div class="setup-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+      </svg>
+    </div>
+    <div class="logo-name">Learn AI</div>
+  </div>
+  <h2>مساعدك الذكي للمذاكرة المكثفة والتعلم — مجاناً بالكامل</h2>
+  <div class="setup-form">
+    <input class="setup-input" type="password" id="apiKey" placeholder="أدخل Gemini API Key — AIza...">
+    <button class="setup-btn" onclick="boot()">ابدأ الآن</button>
+    <p class="setup-note">🔒 مفتاحك محفوظ على جهازك فقط، لا يُرسل لأي خادم</p>
+    <a class="setup-link" href="https://aistudio.google.com/apikey" target="_blank">احصل على مفتاح مجاني ←</a>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <button class="new-btn" onclick="newChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        محادثة جديدة
+      </button>
+    </div>
+    <div class="sidebar-label">المحادثات الأخيرة</div>
+    <div class="history" id="hist"></div>
+    <div class="sidebar-foot">
+      <select class="model-pick" id="mdl" onchange="MDL=this.value">
+        <option value="gemini-2.0-flash">⚡ Gemini 2.0 Flash</option>
+        <option value="gemini-1.5-pro">🧠 Gemini 1.5 Pro</option>
+        <option value="gemini-1.5-flash">🚀 Gemini 1.5 Flash</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="menu-btn" onclick="toggleSB()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+      </button>
+      <div class="topbar-logo">
+        <div class="tl-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+          </svg>
+        </div>
+        <span class="tl-name" id="ctitle">Learn AI</span>
+      </div>
+      <div class="top-tabs">
+        <button class="top-tab on" onclick="setMode('chat',this)">💬 دردشة</button>
+        <button class="top-tab" onclick="setMode('study',this)">📚 دراسة</button>
+      </div>
+    </div>
+
+    <!-- CHAT MODE -->
+    <div id="chatMode">
+      <div class="chat-scroll" id="chatScroll">
+        <div class="welcome" id="welcome">
+          <div class="w-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" style="width:34px;height:34px">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+            </svg>
+          </div>
+          <h2>كيف يمكنني مساعدتك اليوم؟</h2>
+          <p>اسألني أي شيء — شرح، تلخيص، حل مسائل، مراجعة، أو مجرد نقاش</p>
+          <div class="sug-grid">
+            <div class="sug" onclick="qm('اشرح لي هذا المفهوم بطريقة مبسطة وأعطني أمثلة واقعية')"><strong>شرح مبسط</strong>اشرح أي مفهوم بطريقة واضحة</div>
+            <div class="sug" onclick="qm('ساعدني في وضع خطة مذاكرة مكثفة للامتحانات النهائية خلال أسبوعين')"><strong>خطة مذاكرة</strong>خطة مكثفة للامتحانات النهائية</div>
+            <div class="sug" onclick="qm('ما أفضل تقنيات الحفظ والاستذكار؟ وكيف أطبقها؟')"><strong>تقنيات الحفظ</strong>أفضل طرق الحفظ والاستذكار</div>
+            <div class="sug" onclick="qm('راجع هذه المعلومات معي وأخبرني إذا كان هناك أخطاء أو نقص')"><strong>مراجعة المعلومات</strong>تحقق من معلوماتي وصحّحها</div>
+          </div>
+        </div>
+        <div class="msgs" id="msgs" style="display:none"></div>
+      </div>
+      <div class="input-wrap">
+        <div class="input-box">
+          <textarea class="ti" id="ti" placeholder="اكتب رسالتك..." rows="1"
+            oninput="resize(this)" onkeydown="kdown(event)"></textarea>
+          <div class="input-foot">
+            <span class="char" id="cc">0</span>
+            <button class="send" id="snd" onclick="send()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="hint">Learn AI · مدعوم بـ Gemini · مجاني 100%</p>
+      </div>
+    </div>
+
+    <!-- STUDY MODE -->
+    <div id="studyMode">
+      <div class="study-scroll">
+        <input type="file" id="sfile" accept=".txt,.md,.pdf" style="display:none" onchange="loadFile(event)">
+
+        <!-- UPLOAD -->
+        <div id="uploadArea">
+          <div class="upload-card" onclick="document.getElementById('sfile').click()">
+            <div style="font-size:36px;margin-bottom:10px">📄</div>
+            <h3>ارفع ملفك الدراسي</h3>
+            <p>PDF · TXT · MD — اضغط هنا</p>
+          </div>
+          <div style="text-align:center;font-size:12px;color:var(--text3);margin:14px 0">أو الصق المحتوى مباشرة</div>
+          <textarea class="field" id="ptxt" placeholder="الصق نص الدرس أو الفصل هنا..."></textarea>
+          <input class="field" id="subj" placeholder="اسم المادة — مثال: كيمياء عضوية، تاريخ إسلامي، فيزياء..." style="margin-top:10px">
+          <button class="go-btn" onclick="analyze()">✦ تحليل وإنشاء أدوات الدراسة الكاملة</button>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="resultsArea" style="display:none">
+          <div class="back-row">
+            <button class="back-btn" onclick="resetStudy()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+              رجوع
+            </button>
+            <span class="page-title" id="bookTitle"></span>
+          </div>
+          <div class="s-tabs" id="stabs">
+            <button class="s-tab on" onclick="stab('sum',this)">📋 ملخص</button>
+            <button class="s-tab" onclick="stab('quiz',this)">❓ اختبار 30 سؤال</button>
+            <button class="s-tab" onclick="stab('fc',this)">🃏 بطاقات</button>
+            <button class="s-tab" onclick="stab('ws',this)">📝 أوراق عمل</button>
+            <button class="s-tab" onclick="stab('yt',this)">▶ يوتيوب</button>
+            <button class="s-tab" onclick="stab('plan',this)">📅 خطة</button>
+          </div>
+          <div id="stabContent"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+'use strict';
+let KEY='',MDL='gemini-2.0-flash',convs=[],cid=null,busy=false;
+let SC='',SD=null,SN='',qa=0,qs=0,fi=0;
+
+// ── BOOT ──
+window.onload=()=>{
+  const k=localStorage.getItem('lai_key');
+  if(k){KEY=k;launch();}
+  const c=localStorage.getItem('lai_convs');
+  if(c)try{convs=JSON.parse(c);}catch(e){}
+  renderHist();
+};
+
+function boot(){
+  const k=document.getElementById('apiKey').value.trim();
+  if(!k||!k.startsWith('AIza'))return alert('أدخل API Key صحيح يبدأ بـ AIza');
+  KEY=k;localStorage.setItem('lai_key',k);
+  document.getElementById('setup').style.display='none';
+  launch();
+}
+
+function launch(){
+  document.getElementById('setup').style.display='none';
+  document.getElementById('app').style.display='flex';
+  if(!cid)newChat();
+}
+
+// ── SIDEBAR ──
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');}
+
+// ── CONVS ──
+function saveC(){localStorage.setItem('lai_convs',JSON.stringify(convs.slice(0,60)));}
+
+function newChat(){
+  cid=Date.now().toString();
+  convs.unshift({id:cid,title:'محادثة جديدة',msgs:[]});
+  saveC();renderHist();resetChatUI();
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function loadConv(id){
+  cid=id;
+  const c=convs.find(x=>x.id===id);
+  if(!c)return;
+  resetChatUI();
+  if(c.msgs.length){
+    document.getElementById('welcome').style.display='none';
+    document.getElementById('msgs').style.display='flex';
+    c.msgs.forEach(m=>addBubble(m.role,m.content,false));
+  }
+  document.getElementById('ctitle').textContent=c.title;
+  renderHist();
+  document.getElementById('sidebar').classList.remove('open');
+  setTimeout(()=>{const s=document.getElementById('chatScroll');s.scrollTop=s.scrollHeight;},50);
+}
+
+function resetChatUI(){
+  document.getElementById('msgs').innerHTML='';
+  document.getElementById('msgs').style.display='none';
+  document.getElementById('welcome').style.display='flex';
+  document.getElementById('ctitle').textContent='Learn AI';
+}
+
+function getConv(){return convs.find(x=>x.id===cid)||{msgs:[]};}
+
+function pushMsg(role,content){
+  const c=convs.find(x=>x.id===cid);
+  if(!c)return;
+  c.msgs.push({role,content});
+  if(c.msgs.length===2){c.title=content.slice(0,28)+(content.length>28?'…':'');document.getElementById('ctitle').textContent=c.title;}
+  saveC();renderHist();
+}
+
+function renderHist(){
+  document.getElementById('hist').innerHTML=convs.slice(0,25).map(c=>`
+    <div class="h-item ${c.id===cid?'on':''}" onclick="loadConv('${c.id}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+      ${c.title}
+    </div>`).join('');
+}
+
+// ── MODE ──
+function setMode(m,btn){
+  document.querySelectorAll('.top-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('chatMode').style.display=m==='chat'?'flex':'none';
+  document.getElementById('studyMode').style.display=m==='study'?'flex':'none';
+}
+
+// ── CHAT ──
+function kdown(e){
+  document.getElementById('cc').textContent=e.target.value.length;
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
+}
+function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,180)+'px';document.getElementById('cc').textContent=el.value.length;}
+function qm(t){document.getElementById('ti').value=t;send();}
+
+async function send(){
+  const inp=document.getElementById('ti');
+  const txt=inp.value.trim();
+  if(!txt||busy)return;
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('msgs').style.display='flex';
+  inp.value='';inp.style.height='auto';
+  document.getElementById('cc').textContent='0';
+  addBubble('user',txt);pushMsg('user',txt);
+  showDots();busy=true;document.getElementById('snd').disabled=true;
+  try{
+    const hist=getConv().msgs.slice(-16);
+    const contents=hist.slice(0,-1).map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.content}]}))
+      .concat([{role:'user',parts:[{text:txt}]}]);
+    const sys=`أنت Learn AI، مساعد دراسة ذكي متخصص ومتفوق. مهمتك الأساسية مساعدة الطالب أسامة على تحقيق أعلى الدرجات. تتحدث العربية والإنجليزية بطلاقة. أسلوبك: واضح، منظم، تفصيلي عند الحاجة. عند الشرح: استخدم أمثلة حقيقية، قسّم المعلومات، وتأكد من الفهم. هدفك: 98-100% في كل امتحان.`;
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MDL}:generateContent?key=${KEY}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system_instruction:{parts:[{text:sys}]},contents,generationConfig:{temperature:0.7,maxOutputTokens:2048}})
+    });
+    const d=await r.json();
+    const rep=d.candidates?.[0]?.content?.parts?.[0]?.text||'عذراً، حدث خطأ. حاول مرة أخرى.';
+    rmDots();addBubble('ai',rep);pushMsg('assistant',rep);
+  }catch(e){rmDots();addBubble('ai','❌ خطأ في الاتصال. تأكد من API Key.');}
+  busy=false;document.getElementById('snd').disabled=false;
+}
+
+function addBubble(role,content,sc=true){
+  const el=document.getElementById('msgs');
+  const d=document.createElement('div');
+  d.className='msg-row '+role;
+  const aiIcon=`<div class="av ai"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg></div>`;
+  d.innerHTML=(role==='user'?'<div class="av user">👤</div>':aiIcon)+`<div class="bub">${fmt(content)}</div>`;
+  el.appendChild(d);
+  if(sc){const s=document.getElementById('chatScroll');s.scrollTop=s.scrollHeight;}
+}
+
+function fmt(t){
+  return t
+    .replace(/```(\w*)\n?([\s\S]*?)```/g,'<pre><code>$2</code></pre>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g,'<em>$1</em>')
+    .replace(/^#### (.+)$/gm,'<h4>$1</h4>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>')
+    .replace(/\n/g,'<br>');
+}
+
+function showDots(){
+  const el=document.getElementById('msgs');
+  const d=document.createElement('div');
+  d.className='msg-row ai';d.id='dots';
+  d.innerHTML=`<div class="av ai"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg></div><div class="bub"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  el.appendChild(d);
+  const s=document.getElementById('chatScroll');s.scrollTop=s.scrollHeight;
+}
+function rmDots(){const e=document.getElementById('dots');if(e)e.remove();}
+
+// ── STUDY ──
+async function loadFile(e){
+  const f=e.target.files[0];if(!f)return;
+  SC=await f.text();
+  document.getElementById('ptxt').value=SC.slice(0,600)+'…';
+}
+
+async function analyze(){
+  const txt=document.getElementById('ptxt').value.trim()||SC;
+  SN=document.getElementById('subj').value.trim()||'المادة';
+  if(!txt||txt.length<30)return alert('أدخل محتوى أولاً');
+  SC=txt;
+  document.getElementById('uploadArea').style.display='none';
+  document.getElementById('resultsArea').style.display='block';
+  document.getElementById('bookTitle').textContent='⏳ جاري التحليل...';
+  document.getElementById('stabContent').innerHTML=`<div class="load-box"><div class="spin"></div><div class="load-txt">الذكاء الاصطناعي يحلل المحتوى...</div><div class="load-sub">جاري إنشاء 30 سؤال + أوراق عمل متكاملة</div></div>`;
+
+  const p=`أنت خبير تعليمي. حلل هذا المحتوى لمادة "${SN}" وأعد JSON صالح فقط — لا backticks ولا نص إضافي:
+{"title":"عنوان","summary":"ملخص شامل في 3 فقرات","keyPoints":["ن1","ن2","ن3","ن4","ن5","ن6","ن7","ن8"],"keywords":["ك1","ك2","ك3","ك4","ك5","ك6","ك7","ك8","ك9","ك10"],"simple":"شرح مبسط للمبتدئين","quiz":[{"q":"سؤال؟","opts":["أ) خيار","ب) خيار","ج) خيار","د) خيار"],"c":0,"exp":"الشرح","lv":"easy"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":1,"exp":"ش","lv":"easy"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":2,"exp":"ش","lv":"easy"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":3,"exp":"ش","lv":"easy"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":0,"exp":"ش","lv":"easy"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":1,"exp":"ش","lv":"med"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":2,"exp":"ش","lv":"med"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":3,"exp":"ش","lv":"med"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":0,"exp":"ش","lv":"med"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":1,"exp":"ش","lv":"med"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":2,"exp":"ش","lv":"med"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":3,"exp":"ش","lv":"hard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":0,"exp":"ش","lv":"hard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":1,"exp":"ش","lv":"hard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":2,"exp":"ش","lv":"hard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":3,"exp":"ش","lv":"hard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":0,"exp":"ش","lv":"vhard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":1,"exp":"ش","lv":"vhard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":2,"exp":"ش","lv":"vhard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":3,"exp":"ش","lv":"vhard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":0,"exp":"ش","lv":"vhard"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":1,"exp":"ش","lv":"ana"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":2,"exp":"ش","lv":"ana"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":3,"exp":"ش","lv":"ana"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":0,"exp":"ش","lv":"ana"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":1,"exp":"ش","lv":"ana"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":2,"exp":"ش","lv":"app"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":3,"exp":"ش","lv":"app"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":0,"exp":"ش","lv":"app"},{"q":"س؟","opts":["أ)","ب)","ج)","د)"],"c":1,"exp":"ش","lv":"app"}],"flashcards":[{"q":"م1","a":"ت1"},{"q":"م2","a":"ت2"},{"q":"م3","a":"ت3"},{"q":"م4","a":"ت4"},{"q":"م5","a":"ت5"},{"q":"م6","a":"ت6"},{"q":"م7","a":"ت7"},{"q":"م8","a":"ت8"},{"q":"م9","a":"ت9"},{"q":"م10","a":"ت10"},{"q":"م11","a":"ت11"},{"q":"م12","a":"ت12"},{"q":"م13","a":"ت13"},{"q":"م14","a":"ت14"},{"q":"م15","a":"ت15"}],"worksheet":[{"sec":"تعريفات ومفاهيم أساسية","qs":[{"q":"عرّف المفهوم الرئيسي وأذكر مكوناته وخصائصه","a":"نموذج إجابة كاملة"},{"q":"ما الفرق الجوهري بين المفهومين الأساسيين؟ مثّل لكل منهما","a":"نموذج"},{"q":"اذكر أهمية هذا الموضوع مع 3 أمثلة تطبيقية","a":"نموذج"}]},{"sec":"تحليل ونقد","qs":[{"q":"حلل العلاقة بين العناصر الرئيسية وبيّن أثر كل عنصر","a":"نموذج"},{"q":"ناقش إيجابيات وسلبيات المفهوم أو الظاهرة المدروسة","a":"نموذج"},{"q":"قارن بين المدرستين أو الرأيين الرئيسيين في هذا الموضوع","a":"نموذج"}]},{"sec":"تطبيق وتفكير ناقد","qs":[{"q":"كيف تطبق ما تعلمته في موقف حياتي حقيقي؟ اذكر خطوات التطبيق","a":"نموذج"},{"q":"ماذا يحدث إذا غاب العنصر الأساسي؟ استدل على إجابتك","a":"نموذج"},{"q":"اقترح حلاً إبداعياً لمشكلة مرتبطة بهذا الموضوع","a":"نموذج"}]},{"sec":"أسئلة مقالية","qs":[{"q":"اكتب مقالاً متكاملاً من 3 فقرات تشرح فيه الموضوع مع مقدمة وخاتمة","a":"نموذج"},{"q":"ناقش مدى صحة العبارة التالية: هذا الموضوع من أهم المواضيع في المادة — مستشهداً بالأدلة والأمثلة","a":"نموذج"}]}],"plan":[{"day":"اليوم 1","focus":"القراءة والاستيعاب","dur":"45 دقيقة","tasks":["اقرأ الملخص الشامل بتمعن","أضف ملاحظاتك الشخصية","افهم الكلمات المفتاحية"]},{"day":"اليوم 2","focus":"الحفظ النشط","dur":"60 دقيقة","tasks":["ادرس البطاقات 3 مرات متتالية","اكتب النقاط الأساسية من الذاكرة","قارن ما كتبته بالملخص"]},{"day":"اليوم 3","focus":"التطبيق","dur":"60 دقيقة","tasks":["حل الأسئلة السهلة والمتوسطة","راجع كل إجابة خاطئة وافهم سببها","أجب على أوراق العمل القسم الأول"]},{"day":"اليوم 4","focus":"التعمق","dur":"60 دقيقة","tasks":["حل الأسئلة الصعبة والتحليلية","اشرح الموضوع بصوتك كأنك تعلّم شخصاً","أجب على الأسئلة المقالية"]},{"day":"اليوم 5 — قبل الامتحان","focus":"المراجعة النهائية","dur":"30 دقيقة","tasks":["مرّ على الملخص سريعاً","حل 10 أسئلة عشوائية","نم مبكراً — الراحة جزء من النجاح 🌙"]}]}
+
+المحتوى:
+${txt.slice(0,12000)}`;
+
+  try{
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${KEY}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{temperature:0.15,maxOutputTokens:8192}})
+    });
+    const d=await r.json();
+    let raw=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    raw=raw.replace(/```json|```/g,'').trim();
+    SD=JSON.parse(raw);
+    document.getElementById('bookTitle').textContent='📖 '+SD.title;
+    qa=0;qs=0;fi=0;
+    stabDirect('sum');
+  }catch(e){
+    console.error(e);
+    document.getElementById('stabContent').innerHTML='<div class="load-box"><div class="load-txt" style="color:#ef4444">❌ خطأ في التحليل. تأكد من API Key وأن المحتوى كافٍ.</div></div>';
+  }
+}
+
+function stab(t,btn){
+  document.querySelectorAll('.s-tab').forEach(x=>x.classList.remove('on'));
+  btn.classList.add('on');renderTab(t);
+}
+
+function stabDirect(t){
+  const tabs=['sum','quiz','fc','ws','yt','plan'];
+  document.querySelectorAll('.s-tab').forEach((b,i)=>b.classList.toggle('on',tabs[i]===t));
+  renderTab(t);
+}
+
+const LV={easy:{label:'سهل',cls:'lv-easy'},med:{label:'متوسط',cls:'lv-med'},hard:{label:'صعب',cls:'lv-hard'},vhard:{label:'صعب جداً',cls:'lv-vhard'},ana:{label:'تحليل',cls:'lv-ana'},app:{label:'تطبيق',cls:'lv-app'}};
+
+function renderTab(t){
+  const el=document.getElementById('stabContent');
+  if(!SD)return;
+
+  if(t==='sum'){
+    el.innerHTML=`
+      <div class="card"><div class="card-title">الملخص الشامل</div><p>${SD.summary}</p></div>
+      <div class="card"><div class="card-title">أهم النقاط — ${SD.keyPoints.length} نقطة</div><ul>${SD.keyPoints.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+      <div class="card"><div class="card-title">الكلمات المفتاحية</div><div>${SD.keywords.map(k=>`<span class="tag">${k}</span>`).join('')}</div></div>
+      <div class="card"><div class="card-title">شرح مبسط</div><p>${SD.simple}</p></div>`;
+  }
+
+  else if(t==='quiz'){
+    if(qa===SD.quiz.length){
+      const pct=Math.round(qs/SD.quiz.length*100);
+      const msg=pct>=95?'🏆 استثنائي! أنت جاهز تماماً':pct>=85?'⭐ ممتاز! راجع الأسئلة الخاطئة':pct>=70?'👍 جيد — استمر في المذاكرة':pct>=50?'📖 مقبول — راجع المادة مرة أخرى':'❌ يحتاج مزيداً من الدراسة';
+      el.innerHTML=`
+        <div class="score-card">
+          <div class="score-big">${pct}%</div>
+          <div class="score-sub">${qs} إجابة صحيحة من ${SD.quiz.length} سؤال</div>
+          <div class="score-msg">${msg}</div>
+          ${pct<98?`<p style="font-size:13px;color:var(--text3);margin-top:8px">الهدف 98% — ${98-pct}% للوصول إليه 💪</p>`:'<p style="font-size:13px;color:var(--accent);margin-top:8px">أحسنت! حافظ على هذا المستوى 🎯</p>'}
+        </div>
+        <button class="retry-btn" onclick="resetQuiz()">🔄 أعد الاختبار</button>`;
+      return;
+    }
+    const prog=Math.round(qa/SD.quiz.length*100);
+    el.innerHTML=`
+      <div class="q-progress">
+        <span>السؤال <strong>${qa+1}</strong> / <strong>${SD.quiz.length}</strong></span>
+        <span>✓ <strong>${qs}</strong></span>
+        <span>${prog}%</span>
+      </div>
+      <div class="q-bar"><div class="q-bar-fill" style="width:${prog}%"></div></div>
+      ${SD.quiz.map((q,i)=>{
+        const lv=LV[q.lv]||LV.med;
+        return`<div class="q-card" id="qc${i}">
+          <span class="q-level ${lv.cls}">${lv.label}</span>
+          <div class="q-text">${i+1}. ${q.q}</div>
+          ${q.opts.map((o,j)=>`<button class="opt" onclick="ans(${i},${j},${q.c})" id="o${i}_${j}"><span class="opt-letter">${['أ','ب','ج','د'][j]}</span>${o}</button>`).join('')}
+          <div class="exp" id="ex${i}">💡 ${q.exp}</div>
+        </div>`;
+      }).join('')}`;
+  }
+
+  else if(t==='fc'){
+    const c=SD.flashcards;
+    el.innerHTML=`
+      <div class="fc-counter">${fi+1} / ${c.length}</div>
+      <div class="fc-wrap" id="fcw" onclick="flipFC()">
+        <div class="fc-inner">
+          <div class="fc-face">
+            <div class="fc-tag">السؤال</div>
+            <div class="fc-q">${c[fi].q}</div>
+            <div class="fc-hint">اضغط لرؤية الجواب</div>
+          </div>
+          <div class="fc-face fc-back-face">
+            <div class="fc-tag">الجواب</div>
+            <div class="fc-a">${c[fi].a}</div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-nav">
+        <button class="fc-btn" onclick="pfc()">→ السابق</button>
+        <button class="fc-btn" onclick="nfc()">التالي ←</button>
+      </div>`;
+  }
+
+  else if(t==='ws'){
+    el.innerHTML=`
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">أوراق العمل المتكاملة</div>
+        <p style="font-size:13px">اكتب إجابتك ثم اضغط "تحقق" — الذكاء الاصطناعي يقيّم إجابتك ويقارنها بالنموذج</p>
+      </div>
+      ${SD.worksheet.map((sec,si)=>`
+      <div class="ws-block">
+        <div class="ws-head"><h4>${['📌','🔍','⚙️','✍️'][si]||'📌'} ${sec.sec}</h4></div>
+        <div class="ws-body">
+          ${sec.qs.map((q,qi)=>`
+          <div class="ws-q-item">
+            <p><strong>س${qi+1}:</strong> ${q.q}</p>
+            <textarea class="ws-ta" id="wt${si}_${qi}" placeholder="اكتب إجابتك هنا..."></textarea>
+            <button class="check-btn" onclick="chk(${si},${qi},'${encodeURIComponent(q.a)}')">✓ تحقق</button>
+            <div class="ws-fb" id="wf${si}_${qi}"></div>
+          </div>`).join('')}
+        </div>
+      </div>`).join('')}`;
+  }
+
+  else if(t==='yt'){
+    const q1=encodeURIComponent(`${SN} شرح ${SD.title}`);
+    const q2=encodeURIComponent(`${SN} ملخص مراجعة سريعة`);
+    const q3=encodeURIComponent(`${SN} أوراق عمل حل نماذج`);
+    const q4=encodeURIComponent(`${SN} امتحانات سابقة حلول`);
+    el.innerHTML=`
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">موارد يوتيوب — ${SN}</div>
+        <p style="font-size:13px">روابط بحث مخصصة لمادتك — اضغط أي بطاقة لفتح يوتيوب مباشرة</p>
+      </div>
+      ${[
+        [q1,'🎓',`شرح ${SD.title}`,'أفضل شرح مفصل للموضوع'],
+        [q2,'📋','ملخص ومراجعة سريعة','تلخيص مكثف للمراجعة النهائية'],
+        [q3,'📝','أوراق عمل وحلول','نماذج ورقة عمل مع حلول تفصيلية'],
+        [q4,'🏆','امتحانات سابقة','أسئلة امتحانات سابقة مع الحلول']
+      ].map(([q,icon,title,desc])=>`
+      <a href="https://www.youtube.com/results?search_query=${q}" target="_blank" class="yt-item">
+        <div class="yt-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></div>
+        <div class="yt-text"><h5>${icon} ${title}</h5><p>${desc}</p></div>
+      </a>`).join('')}
+      <div class="card" style="margin-top:8px">
+        <div class="card-title">بحث مخصص</div>
+        <div class="yt-search-row">
+          <input class="yt-input" id="yti" placeholder="ابحث في يوتيوب...">
+          <button class="yt-go" onclick="ytgo()">▶ بحث</button>
+        </div>
+      </div>`;
+  }
+
+  else if(t==='plan'){
+    el.innerHTML=`
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">خطة المذاكرة المكثفة — 5 أيام</div>
+        <p style="font-size:13px">مصممة خصيصاً للوصول إلى 98–100% 🎯</p>
+      </div>
+      ${SD.plan.map((d,i)=>`
+      <div class="day-card">
+        <div class="day-head">
+          <h4>📆 ${d.day} — ${d.focus}</h4>
+          <span>⏱ ${d.dur}</span>
+        </div>
+        <div class="day-tasks">
+          ${d.tasks.map(t=>`<div class="task-item"><div class="task-dot"></div>${t}</div>`).join('')}
+        </div>
+      </div>`).join('')}`;
+  }
+}
+
+function ans(qi,sel,cor){
+  const opts=document.querySelectorAll(`[id^="o${qi}_"]`);
+  opts.forEach(o=>o.disabled=true);
+  document.getElementById(`o${qi}_${sel}`).classList.add(sel===cor?'correct':'wrong');
+  if(sel!==cor)document.getElementById(`o${qi}_${cor}`).classList.add('correct');
+  document.getElementById(`ex${qi}`).style.display='block';
+  qa++;if(sel===cor)qs++;
+  if(qa===SD.quiz.length)setTimeout(()=>stabDirect('quiz'),1000);
+}
+
+function resetQuiz(){qa=0;qs=0;stabDirect('quiz');}
+function flipFC(){document.getElementById('fcw').classList.toggle('flip');}
+function nfc(){fi=(fi+1)%SD.flashcards.length;stabDirect('fc');}
+function pfc(){fi=(fi-1+SD.flashcards.length)%SD.flashcards.length;stabDirect('fc');}
+function ytgo(){const v=document.getElementById('yti').value.trim();if(!v)return;window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(v),'_blank');}
+
+async function chk(si,qi,enc){
+  const ua=document.getElementById(`wt${si}_${qi}`).value.trim();
+  const ma=decodeURIComponent(enc);
+  const fb=document.getElementById(`wf${si}_${qi}`);
+  if(!ua){alert('اكتب إجابتك أولاً');return;}
+  fb.style.display='block';fb.className='ws-fb';fb.textContent='⏳ يقيّم الذكاء الاصطناعي إجابتك...';
+  try{
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${KEY}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:`قيّم هذه الإجابة الطلابية بجملتين فقط بالعربية. هل صحيحة؟ ما الذي ينقصها؟\nالنموذج: ${ma}\nالطالب: ${ua}`}]}],generationConfig:{temperature:0.2,maxOutputTokens:200}})
+    });
+    const d=await r.json();
+    const res=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    const ok=res.includes('صح')||res.includes('ممتاز')||res.includes('جيد')||res.includes('كامل')||res.includes('صحيح');
+    fb.className=`ws-fb ${ok?'ok':'no'}`;
+    fb.innerHTML=`${ok?'✅':'❌'} ${res}<br><br><strong>📋 نموذج الإجابة:</strong> ${ma}`;
+  }catch(e){
+    fb.className='ws-fb ok';
+    fb.innerHTML=`<strong>📋 نموذج الإجابة:</strong> ${ma}`;
+  }
+}
+
+function resetStudy(){
+  SD=null;SC='';
+  document.getElementById('uploadArea').style.display='block';
+  document.getElementById('resultsArea').style.display='none';
+  document.getElementById('ptxt').value='';
+  document.getElementById('subj').value='';
+}
+</script>
+</body>
+</html>
